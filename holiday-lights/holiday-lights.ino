@@ -45,7 +45,7 @@ uint16_t gLoopCounter = 0;
 void loop()
 {
   // this is where you call your function, instead of the sample
-  rainbowWithGlitter();
+  confetti();
 
   FastLED.show();
   FastLED.delay(1000/FRAMES_PER_SECOND); 

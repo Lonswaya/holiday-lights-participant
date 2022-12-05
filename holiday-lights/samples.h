@@ -11,12 +11,19 @@ void straightYesChaser()
   straightYesChaserInternal(leds3, CRGB::Green);
 }
 
-void confetti() 
+void confettiEach(CRGB *leds)
 {
   // random colored speckles that blink in and fade smoothly
-  fadeToBlackBy( leds1, NUM_LEDS, 10);
+  fadeToBlackBy( leds, NUM_LEDS, 10);
   int pos = random16(NUM_LEDS);
-  leds1[pos] += CHSV( gHue + random8(64), 200, 255);
+  leds[pos] += CHSV( gHue + random8(64), 200, 255);
+}
+
+void confetti() 
+{
+  confettiEach(leds1);
+  confettiEach(leds2);
+  confettiEach(leds3);
 }
 
 void sinelon()
