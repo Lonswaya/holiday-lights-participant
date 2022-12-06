@@ -40,12 +40,13 @@ uint16_t gLoopCounter = 0;
 ////////////////////////////////////
 // include participant files
 #include "samples.h"
+#include "ajl.h"
 ////////////////////////////////////
 
 void loop()
 {
   // this is where you call your function, instead of the sample
-  confetti();
+  snowing();
 
   FastLED.show();
   FastLED.delay(1000/FRAMES_PER_SECOND); 
