@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>     /* srand, rand */
 
 const double BOTTOM_LIGHT_COUNT = 31.3;
 const double TOP_LIGHT_COUNT = 5.0;
@@ -88,16 +89,16 @@ int thetaAndZToIndex(double theta, double z)
       break;
       // all good until here
     case 13:
-      targetIndex = 278 + (thetaPercent * 5); //10
+      targetIndex = 278 + (thetaPercent * 5); //10 lights per row
       break;
     case 14:
-      targetIndex = 283 + (thetaPercent * 5); // 9
+      targetIndex = 283 + (thetaPercent * 5); // 9 lights per row
       break;
     case 15:
-      targetIndex = 288 + (thetaPercent * 4); // 7
+      targetIndex = 288 + (thetaPercent * 4); // 7 lights per row
       break;
     case 16:
-      targetIndex = 292 + (thetaPercent * 4); // 7
+      targetIndex = 292 + (thetaPercent * 4); // 7 lights per row 
       break;
     default:
       break; 
@@ -106,31 +107,64 @@ int thetaAndZToIndex(double theta, double z)
   return targetIndex;
 }
 
-double snowflake_1_theta = 30;
-double snowflake_2_theta = 60;
-
 const int GRAVITY = 150; // the larger, the slower
+const int SNOWFLAKE_COUNT = 3;
+const unsigned int RANDOM_SEED = 0; 
+const double SNOWFLAKE_DRIFT = 60; // the angle from left and right a snowflake should drift
+const double SNOWFLAKE_DRIFT_SPEED = 1; // how fast the snowflakes go from left to right
 
-void createSnowflakeAt(double theta, double z, CRGB *leds)
+void createSnowflakeAt(double theta, CRGB *leds, double z, CRGB color)
 {
   int index = thetaAndZToIndex(theta, z);
-  leds[index] = CRGB::White;
+  leds[index] = color;
 }
 
-void snowing(CRGB *leds)
+void snowing(CRGB *leds, const unsigned int seedOffset)
 {
-  //double theta = 0;
-  double z = 1.0 - (double(gLoopCounter % GRAVITY) / double(GRAVITY));
-  createSnowflakeAt(snowflake_1_theta, z, leds);
-  //createSnowflakeAt(snowflake_2_theta, z, leds);
+  srand(RANDOM_SEED + seedOffset) // Init rand at our start
+  double z_offset = 1.0 - (double(gLoopCounter % GRAVITY) / double(GRAVITY));
+  for (int i = 0; i < SNOWFLAKE_COUNT; i++)
+  {
+    double initial_z = rand() / RAND_MAX; // from 0 to 1
+    int theta = (rand() / RAND_MAX) * 360;
+
+    // should fluctuate from + SNOWFLAKE_DRIFT to - SNOWFLAKE_DRIFT 
+    theta = theta + (sin(gLoopCounter * SNOWFLAKE_DRIFT_SPEED) * SNOWFLAKE_DRIFT);
+    int color = rand() % 5;
+    CRGB color = CRGB::Red;
+    switch (color)
+    {
+      case 0:
+        color = CRGB::Blue;
+        break;
+      case 1:
+        color = CRGB::White;
+        break;
+      case 2:
+        color = 0x72a3f2; // Cornflower Blue
+        break;
+      case 3:
+        color = 0xa3c0f0; // Tropical Blue
+        break;
+      case 4:
+        color = 0xcedcf5; // Hawkes Blue
+        break;
+      case 5:
+        color = 0xecf3fd; // Alice Blue
+        break;
+    }
+    
+    
+    createSnowflakeAt(theta, leds, initial_z - z_offset, color);
+  }
   
   fadeToBlackBy( leds, NUM_LEDS, 80);
 }
 
 void snowing()
 {
-  snowing(leds1);
-  snowing(leds2);
-  snowing(leds3);
+  snowing(leds1, 1);
+  snowing(leds2, 2);
+  snowing(leds3, 3);
 }
 
