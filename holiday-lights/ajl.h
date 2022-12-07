@@ -107,32 +107,34 @@ int thetaAndZToIndex(double theta, double z)
   return targetIndex;
 }
 
-const int GRAVITY = 150; // the larger, the slower
-const int SNOWFLAKE_COUNT = 3;
+const int GRAVITY = 125; // the larger, the slower
+const int SNOWFLAKE_COUNT = 12;
 const unsigned int RANDOM_SEED = 0; 
-const double SNOWFLAKE_DRIFT = 60; // the angle from left and right a snowflake should drift
-const double SNOWFLAKE_DRIFT_SPEED = 1; // how fast the snowflakes go from left to right
+const double SNOWFLAKE_DRIFT = 20; // the angle from left and right a snowflake should drift
+const double SNOWFLAKE_DRIFT_SPEED = 0.1; // how fast the snowflakes go from left to right
 
 void createSnowflakeAt(double theta, CRGB *leds, double z, CRGB color)
 {
   int index = thetaAndZToIndex(theta, z);
+  
   leds[index] = color;
 }
 
 void snowing(CRGB *leds, const unsigned int seedOffset)
 {
-  srand(RANDOM_SEED + seedOffset) // Init rand at our start
+
+  srand(RANDOM_SEED + seedOffset); // Init rand at our start
   double z_offset = 1.0 - (double(gLoopCounter % GRAVITY) / double(GRAVITY));
   for (int i = 0; i < SNOWFLAKE_COUNT; i++)
   {
-    double initial_z = rand() / RAND_MAX; // from 0 to 1
-    int theta = (rand() / RAND_MAX) * 360;
+    double initial_z = double(rand()) / double(RAND_MAX); // from 0 to 1
+    int theta = (double(rand()) / double(RAND_MAX)) * 360;
 
     // should fluctuate from + SNOWFLAKE_DRIFT to - SNOWFLAKE_DRIFT 
     theta = theta + (sin(gLoopCounter * SNOWFLAKE_DRIFT_SPEED) * SNOWFLAKE_DRIFT);
-    int color = rand() % 5;
+    int colorInt = rand() % 5;
     CRGB color = CRGB::Red;
-    switch (color)
+    switch (colorInt)
     {
       case 0:
         color = CRGB::Blue;
@@ -153,12 +155,17 @@ void snowing(CRGB *leds, const unsigned int seedOffset)
         color = 0xecf3fd; // Alice Blue
         break;
     }
+    double possible_z = initial_z + z_offset;
+    // float modulo wasn't working correctly
+    if (possible_z > 1)
+    {
+      possible_z = possible_z - 1;
+    };
     
-    
-    createSnowflakeAt(theta, leds, initial_z - z_offset, color);
+    createSnowflakeAt(theta, leds, possible_z, color);
   }
   
-  fadeToBlackBy( leds, NUM_LEDS, 80);
+  fadeToBlackBy( leds, NUM_LEDS, 120);
 }
 
 void snowing()
